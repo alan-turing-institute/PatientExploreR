@@ -629,7 +629,10 @@ generate_pt_report <- function(pt_data) {
   # initialize master report table
   master_report <- data.table(
     Date = as.Date(character()),
-    Date_end = character(), Type = character(), Event = character(), Value = character()
+    Date_end = as.Date(character()),
+    Type = character(),
+    Event = character(),
+    Value = character()
   )
 
   # extract table-specific data
@@ -643,7 +646,7 @@ generate_pt_report <- function(pt_data) {
   ## format observations
   observations <- observations_original[, c("observation_date", "observation_concept_name", "value_as_number")]
   observations$Type <- "Observation"
-  observations$Date_end <- NA
+  observations$Date_end <- as.Date(NA)
   observations <- observations[!duplicated(observations),
     ]
   observations <- observations[!is.na(observations$observation_date),
@@ -676,7 +679,7 @@ generate_pt_report <- function(pt_data) {
   ## format procedures
   procedures <- procedures_original[, c("procedure_date", "procedure_concept_name", "procedure_source_value")]
   procedures$Type <- "Procedure"
-  procedures$Date_end <- NA
+  procedures$Date_end <- as.Date(NA)
   procedures <- procedures[!duplicated(procedures),
     ]
   procedures <- procedures[!is.na(procedures$procedure_date),
@@ -709,7 +712,7 @@ generate_pt_report <- function(pt_data) {
   ## format Measurements
   measurements <- measurements_original[, c("measurement_date", "measurement_concept_name", "value_as_number")]
   measurements$Type <- "Measurement"
-  measurements$Date_end <- NA
+  measurements$Date_end <- as.Date(NA)
   measurements <- measurements[!duplicated(measurements),
     ]
   measurements <- measurements[!is.na(measurements$measurement_date),
