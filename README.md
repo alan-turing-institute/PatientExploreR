@@ -79,7 +79,7 @@ a MySQL database.
  
 ### Credentials
  
-You must set the following as environment variables
+You must set the following environment variables (substituting in your values as appropriate)
 
 ```
 export EXPLORER_PATH_TO_DRIVER='/path/to/dir/containing/drivers/'
