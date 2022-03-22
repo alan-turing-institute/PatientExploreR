@@ -812,10 +812,16 @@ get_all_pt_data <- function(pt_id) {
 
 getEncounters <- function(pt_id) {
 
-  queryStatement <- paste0(
-    "SELECT person_id, visit_occurrence_id, visit_concept_id, visit_start_date, visit_end_date, visit_source_concept_id, visit_source_value, admitting_source_concept_id, discharge_to_concept_id FROM visit_occurrence WHERE person_id = ",
-    pt_id
-  )
+  queryStatement <- paste0('SELECT person_id,
+                                     visit_occurrence_id,
+                                     visit_concept_id,
+                                     visit_start_date,
+                                     visit_end_date,
+                                     visit_source_concept_id,
+                                     visit_source_value,
+                                     admitted_from_concept_id,
+                                     discharged_to_concept_id
+                             FROM visit_occurrence WHERE person_id = ', pt_id)
 
   # get visit data
   ptEncs <- sqlQuery(queryStatement)
@@ -823,8 +829,8 @@ getEncounters <- function(pt_id) {
   ptEncs <- data.table(ptEncs)  # convert to data.table
 
   # convert NA source_concept_ids to 0
-  ptEncs[is.na(admitting_source_concept_id)]$admitting_source_concept_id <- 0
-  ptEncs[is.na(discharge_to_concept_id)]$discharge_to_concept_id <- 0
+  ptEncs[is.na(admitted_from_concept_id)]$admitted_from_concept_id <- 0
+  ptEncs[is.na(discharged_to_concept_id)]$discharged_to_concept_id <- 0
 
   # merge in relevant information concept ids
   ptEncs <- merge(
@@ -843,18 +849,18 @@ getEncounters <- function(pt_id) {
   ptEncs <- ptEncs[, -"visit_source_concept_id"]
   ptEncs <- merge(
     ptEncs, dataOntology[, c("concept_id", "concept_name")],
-    by.x = "admitting_source_concept_id", by.y = "concept_id", all.x = TRUE
+    by.x = "admitted_from_concept_id", by.y = "concept_id", all.x = TRUE
   )
   names(ptEncs)[names(ptEncs) ==
     "concept_name"] <- "admitting_concept"  # rename column
-  ptEncs <- ptEncs[, -"admitting_source_concept_id"]
+  ptEncs <- ptEncs[, -"admitted_from_concept_id"]
   ptEncs <- merge(
     ptEncs, dataOntology[, c("concept_id", "concept_name")],
-    by.x = "discharge_to_concept_id", by.y = "concept_id", all.x = TRUE
+    by.x = "discharged_to_concept_id", by.y = "concept_id", all.x = TRUE
   )
   names(ptEncs)[names(ptEncs) ==
     "concept_name"] <- "discharge_concept"  # rename column
-  ptEncs <- ptEncs[, -"discharge_to_concept_id"]
+  ptEncs <- ptEncs[, -"discharged_to_concept_id"]
 
   ptEncs$visit_start_date <- as.Date(ptEncs$visit_start_date)
 
