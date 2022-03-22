@@ -1,3 +1,16 @@
+#' This is no longer part of Shiny
+#'
+#' But it's simple enough that we can declare it here
+#' and replace calls to shiny:::`%AND%` with calls to
+#' this `%AND%`
+`%AND%` <- function(x, y) {
+  if (!is.null(x) && !isTRUE(is.na(x)))
+    if (!is.null(y) && !isTRUE(is.na(y)))
+      return(y)
+  return(NULL)
+}
+
+
 #' Choose a Folder Interactively
 #'
 #' Display an OS-native folder selection dialog under Mac OS X, Linux GTK+ or
@@ -121,7 +134,7 @@ directoryInput = function(inputId, label, value = NULL) {
 
     div(
       class = 'form-group directory-input-container',
-      shiny:::`%AND%`(label, tags$label(label)),
+      `%AND%`(label, tags$label(label)),
       div(
         span(
           class = 'col-xs-9 col-md-9', # slight modification here to change col-md from 11 to 9 (for button to fit column)
