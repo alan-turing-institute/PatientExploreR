@@ -1,2 +1,2 @@
-source('directoryInput.R')
-source('PatientExploreR-OMOP_functions.R')
+source("directoryInput.R")
+source("PatientExploreR-OMOP_functions.R")

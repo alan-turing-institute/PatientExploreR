@@ -3,7 +3,7 @@
 #' But it's simple enough that we can declare it here
 #' and replace calls to shiny:::`%AND%` with calls to
 #' this `%AND%`
-`%AND%` <- function(x, y) {
+shiny_and <- function(x, y) {
   if (!is.null(x) && !isTRUE(is.na(x)))
     if (!is.null(y) && !isTRUE(is.na(y)))
       return(y)
@@ -24,7 +24,7 @@
 #' folder selection dialog.
 #'
 #' For Apple Script, with \code{default = NA}, the initial folder selection
-#' is determined by default behavior of the "choose folder" script. Otherwise,
+#' is determined by default behavior of the 'choose folder' script. Otherwise,
 #' paths are expanded with \link{path.expand}.
 #'
 #' For Windows Batch script the initial folder is always ignored.
@@ -32,71 +32,73 @@
 #' @return
 #' A length one character vector, character NA if 'Cancel' was selected.
 #'
-if (Sys.info()['sysname'] == 'Darwin') {
-  choose.dir = function(default = NA, caption = NA) {
-    command = 'osascript'
-    args = '-e "POSIX path of (choose folder{{prompt}}{{default}})"'
+if (Sys.info()["sysname"] == "Darwin") {
+  choose.dir <- function(default = NA, caption = NA) {
+    command <- "osascript"
+    args <- "-e \"POSIX path of (choose folder{{prompt}}{{default}})\""
 
     if (!is.null(caption) && !is.na(caption) && nzchar(caption)) {
-      prompt = sprintf(' with prompt \\"%s\\"', caption)
+      prompt <- sprintf(" with prompt \\\"%s\\\"", caption)
     } else {
-      prompt = ''
+      prompt <- ""
     }
-    args = sub('{{prompt}}', prompt, args, fixed = T)
+    args <- sub("{{prompt}}", prompt, args, fixed = T)
 
     if (!is.null(default) && !is.na(default) && nzchar(default)) {
-      default = sprintf(' default location \\"%s\\"', path.expand(default))
+      default <- sprintf(" default location \\\"%s\\\"", path.expand(default))
     } else {
-      default = ''
+      default <- ""
     }
-    args = sub('{{default}}', default, args, fixed = T)
+    args <- sub("{{default}}", default, args, fixed = T)
 
     suppressWarnings({
-      path = system2(command, args = args, stderr = TRUE)
+      path <- system2(command, args = args, stderr = TRUE)
     })
-    if (!is.null(attr(path, 'status')) && attr(path, 'status')) {
+    if (!is.null(attr(path, "status")) && attr(path, "status")) {
       # user canceled
-      path = NA
+      path <- NA
     } else {
-      # cut any extra output lines, like "Class FIFinderSyncExtensionHost ..."
-      path = tail(path, n=1)
+      # cut any extra output lines, like 'Class FIFinderSyncExtensionHost ...'
+      path <- tail(path, n = 1)
     }
 
     return(path)
   }
-} else if (Sys.info()['sysname'] == 'Linux') {
-  choose.dir = function(default = NA, caption = NA) {
-    command = 'zenity'
-    args = '--file-selection --directory --title="Choose a folder"'
+} else if (Sys.info()["sysname"] == "Linux") {
+  choose.dir <- function(default = NA, caption = NA) {
+    command <- "zenity"
+    args <- "--file-selection --directory --title=\"Choose a folder\""
 
     suppressWarnings({
-      path = system2(command, args = args, stderr = TRUE)
+      path <- system2(command, args = args, stderr = TRUE)
     })
 
-    #Return NA if user hits cancel
-    if (!is.null(attr(path, 'status')) && attr(path, 'status')) {
+    # Return NA if user hits cancel
+    if (!is.null(attr(path, "status")) && attr(path, "status")) {
       # user canceled
       return(default)
     }
 
-    #Error: Gtk-Message: GtkDialog mapped without a transient parent
-    if(length(path) == 2){
-      path = path[2]
+    # Error: Gtk-Message: GtkDialog mapped without a transient parent
+    if (length(path) == 2) {
+      path <- path[2]
     }
 
     return(path)
   }
-} else if (Sys.info()['sysname'] == 'Windows') {
+} else if (Sys.info()["sysname"] == "Windows") {
   # Use batch script to circumvent issue w/ `choose.dir`/`tcltk::tk_choose.dir`
   # window popping out unnoticed in the back of the current window
-  choose.dir = function(default = NA, caption = NA) {
-      command = file.path('utils','choose_dir.bat')
-      args = if (is.na(caption)) '' else sprintf('"%s"', caption)
-      suppressWarnings({
-        path = system2(command, args = args, stdout = TRUE)
-      })
-      if (path == 'NONE') path = NA
-      return(path)
+  choose.dir <- function(default = NA, caption = NA) {
+    command <- file.path("utils", "choose_dir.bat")
+    args <- if (is.na(caption))
+      "" else sprintf("\"%s\"", caption)
+    suppressWarnings({
+      path <- system2(command, args = args, stdout = TRUE)
+    })
+    if (path == "NONE")
+      path <- NA
+    return(path)
   }
 }
 
@@ -120,51 +122,22 @@ if (Sys.info()['sysname'] == 'Darwin') {
 #'
 #' @seealso
 #' \link{updateDirectoryInput}, \link{readDirectoryInput}, \link[utils]{choose.dir}
-directoryInput = function(inputId, label, value = NULL) {
+directoryInput <- function(inputId, label, value = NULL) {
   if (!is.null(value) && !is.na(value)) {
-    value = path.expand(value)
+    value <- path.expand(value)
   }
 
-  tagList(
-    singleton(
-      tags$head(
-        tags$script(src = 'js/directory_input_binding.js')
-      )
-    ),
-
-    div(
-      class = 'form-group directory-input-container',
-      `%AND%`(label, tags$label(label)),
-      div(
-        span(
-          class = 'col-xs-9 col-md-9', # slight modification here to change col-md from 11 to 9 (for button to fit column)
-          style = 'padding-left: 0; padding-right: 5px;',
-          div(
-            class = 'input-group shiny-input-container',
-            style = 'width:100%;',
-            div(class = 'input-group-addon', icon('folder-o')),
-            tags$input(
-              id = sprintf('%s__chosen_dir', inputId),
-              value = value,
-              type = 'text',
-              class = 'form-control directory-input-chosen-dir',
-              readonly = 'readonly'
-            )
-          )
-        ),
-        span(
-          class = 'shiny-input-container',
-          tags$button(
-            id = inputId,
-            class = 'btn btn-default directory-input',
-            '...'
-          )
-        )
-      )
-    )
-
-  )
-
+  # slight modification here to change col-md from 11 to 9 (for button to fit
+  # column)
+  tagList(singleton(tags$head(tags$script(src = "js/directory_input_binding.js"))),
+    div(class = "form-group directory-input-container", shiny_and(label, tags$label(label)),
+      div(span(class = "col-xs-9 col-md-9", style = "padding-left: 0; padding-right: 5px;",
+        div(class = "input-group shiny-input-container", style = "width:100%;",
+          div(class = "input-group-addon", icon("folder-o")), tags$input(id = sprintf("%s__chosen_dir",
+          inputId), value = value, type = "text", class = "form-control directory-input-chosen-dir",
+          readonly = "readonly"))), span(class = "shiny-input-container",
+        tags$button(id = inputId, class = "btn btn-default directory-input",
+          "...")))))
 }
 
 #' Change the value of a directoryInput on the client
@@ -181,9 +154,9 @@ directoryInput = function(inputId, label, value = NULL) {
 #' in the text-field and triggers a client-side change event.  A directory
 #' selection dialog is not displayed.
 #'
-updateDirectoryInput = function(session, inputId, value = NULL, ...) {
+updateDirectoryInput <- function(session, inputId, value = NULL, ...) {
   if (is.null(value)) {
-    value = choose.dir(...)
+    value <- choose.dir(...)
   }
   session$sendInputMessage(inputId, list(chosen_dir = value))
 }
@@ -197,6 +170,6 @@ updateDirectoryInput = function(session, inputId, value = NULL, ...) {
 #' Reads the value of the text field associated with a \code{directoryInput}
 #' object that stores the user selected directory path.
 #'
-readDirectoryInput = function(session, inputId) {
-  session$input[[sprintf('%s__chosen_dir', inputId)]]
+readDirectoryInput <- function(session, inputId) {
+  session$input[[sprintf("%s__chosen_dir", inputId)]]
 }

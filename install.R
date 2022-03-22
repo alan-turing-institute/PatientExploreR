@@ -1,10 +1,10 @@
-#####################################################
-## Install all required packages for PatientExploreR
-## Ben Glicksberg
-## 9/2018
-#####################################################
+##################################################### Install all required
+##################################################### packages for
+##################################################### PatientExploreR Ben
+##################################################### Glicksberg 9/2018
 
-install.packages(c("devtools","shiny","shinyWidgets","shinyjs","shinythemes","DBI","RMySQL","plotly","stringr","dplyr","data.table","purrr"))
+install.packages(c("devtools", "shiny", "shinyWidgets", "shinyjs", "shinythemes",
+    "DBI", "RMySQL", "plotly", "stringr", "dplyr", "data.table", "purrr"))
 
 # install OHDSI packages
 library(devtools)
