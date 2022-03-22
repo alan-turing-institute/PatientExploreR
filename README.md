@@ -63,6 +63,14 @@ a MySQL database.
 
 ### Installation
 
+#### renv Method
+
+1. Install [renv](https://rstudio.github.io/renv/articles/renv.html)
+1. Clone the repo and `cd` into it
+1. At the R prompt, run `renv::restore()` to create and activate an environment form the [renv.lock](renv.lock) file
+
+#### Install Script Method
+
  - Download app from GitHub 
  - Navigate to directory and run Install.R (Rscript Install.R) to install all required packages
  - (Optional) Create .Renviron file in directory with database credentials (Note: this can be done in the app itself). See section below for formatting this file.
