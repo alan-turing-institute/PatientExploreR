@@ -3,7 +3,7 @@ PatientExploreR Readme
 Benjamin S. Glicksberg
 2018-19
 
-## PatientExploreR
+# PatientExploreR
 
 PatientExploreR is an extensible application built on the R/Shiny framework  to interface with the
 [Observational Health Data Sciences and Informatics
@@ -23,6 +23,7 @@ metathesaureses, such as the [Unified Medical Language System
 (UMLS)](https://www.nlm.nih.gov/research/umls/). Much of the underlying logic of the app for interfacing with OMOP data is adapted from our [ROMOP](https://github.com/BenGlicksberg/ROMOP) package (further description and details can be found in ROMOP's GitHub page). 
 
 ### Manuscript information:
+
 Glicksberg BS, Oskotsky B, Thangaraj PM, Giangreco N, Badgeley MA, Johnson KW, Datta D, Rudrapatna VA, Rappoport N, Shervey MM, Miotto R. PatientExploreR: an extensible application for dynamic visualization of patient clinical history from electronic health records in the OMOP common data model. Bioinformatics. 2019 Nov 1;35(21):4515-8.
 
 ### Sandbox Server
@@ -73,17 +74,21 @@ a MySQL database.
 
  - Download app from GitHub 
  - Navigate to directory and run Install.R (Rscript Install.R) to install all required packages
- - (Optional) Create .Renviron file in directory with database credentials (Note: this can be done in the app itself). See section below for formatting this file.
- - Open app using either Rstudio (Run App) or from command line: R -e \"shiny::runApp('PatientExploreR.R')\", then navigate to the IP address after \"Listening on?\" using a web browser.
+ - Open app using either Rstudio (Run App) or from command line: R -e \"shiny::runApp('PatientExploreR.R')\"
  
- #### Storing Credentials
  
- For quick connection, users can quickly load and save their credentials to connect to EHR database within an R environment file (.Renviron). Either this file can be created after the credentials are entered in the input fields (Save Credentials button) which will automatically create this file in the directory of interest. Alternatively, users can create an .Renviron file the project directory in the following format:
->   driver = ""  
->   host = ""  
->   username = ""  
->   password = ""  
->   dbname = ""  
->   port = ""  
+### Credentials
+ 
+You must set the following as environment variables
+
+```
+export EXPLORER_PATH_TO_DRIVER='/path/to/dir/containing/drivers/'
+export EXPLORER_DBMS='postgresql'
+export EXPLORER_USERNAME='myuser@myhost'
+export EXPLORER_PASSWORD='mytopsecretpassword'
+export EXPLORER_HOSTNAME='mydb.mydomain.org'
+export EXPLORER_DBNAME='postgres'
+export EXPLORER_PORT=5432
+```
                                         
 Full instructions on these connection parameters can be found from the OHDSI consortium's [Database Connector](https://github.com/OHDSI/DatabaseConnector) GitHub page.
